@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CarRentalSystem.Entities
 {
-    internal class Customer
+    public class Customer
     {
         public int customerID;
         public string firstName;

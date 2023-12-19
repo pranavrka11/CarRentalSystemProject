@@ -7,12 +7,16 @@ using System.Threading.Tasks;
 
 namespace CarRentalSystem.Entities
 {
-    internal class Payment
+    public class Payment
     {
-        int paymentID;
-        int leaseID;
-        DateTime paymentDate;
-        double amount;
+        public int paymentID;
+        public int leaseID;
+        public DateTime paymentDate;
+        public double amount;
+
+        public Payment()
+        {
+        }
 
         public Payment(int paymentID, int leaseID, DateTime paymentDate, double amount)
         {
@@ -46,19 +50,24 @@ namespace CarRentalSystem.Entities
             set { amount = value; }
         }
 
-        public List<Payment> listPayment(Lease lease)
-        {
-            throw new NotImplementedException();
-        }
+        //public List<Payment> listPayment(Lease lease)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public void recordPayment()
-        {
-            throw new NotImplementedException();
-        }
+        //public void recordPayment()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public void recordPayment(Lease lease, double amount)
+        //public void recordPayment(Lease lease, double amount)
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        public override string ToString()
         {
-            throw new NotImplementedException();
+            return $"PaymentID: {paymentID}\t LeaseID: {LeaseID}\t Payment date: {paymentDate}\t Payment Amount: {amount}";
         }
     }
 }

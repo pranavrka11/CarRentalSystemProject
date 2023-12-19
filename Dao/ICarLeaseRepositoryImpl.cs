@@ -1,5 +1,6 @@
 ﻿using CarRentalSystem.Entities;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,13 +28,15 @@ namespace CarRentalSystem.Dao
 
         //Methods for Lease Management
         int createLease(int customerID, int carID, DateTime startDate, DateTime endDate);
-        void returnCar(int leaseID);
+        ArrayList displayLeaseInfo(int leaseID);
         List<Lease> listActiveLeases();
         List<Lease> listLeaseHistory();
 
+        int returnCar(int carID);
+
 
         //Methods for Payment Management
-        void recordPayment(Lease lease, double amount);
-        List<Payment> listPayments(Lease lease);
+        void recordPayment(DateTime paymentDate, double amount);
+        List<Payment> listPayments();
     }
 }

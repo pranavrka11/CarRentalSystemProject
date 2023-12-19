@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CarRentalSystem.Util
 {
-    internal static class DbConnUtil
+    public static class DbConnUtil
     {
         private static IConfiguration _iconfig;
 

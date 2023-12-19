@@ -2,6 +2,8 @@
 
 using CarRentalSystem.Dao;
 using CarRentalSystem.Entities;
+using CarRentalSystem.Exceptions;
+using System.Collections;
 
 bool inLoop = true;
 while(inLoop)
@@ -35,12 +37,13 @@ while(inLoop)
                 Console.WriteLine("3. Find a customer");
                 Console.WriteLine("4. Remove a customer");
                 Console.WriteLine("5. Go to Main Menu\n");
-                Console.WriteLine("Enter your choice: ");
+                Console.Write("Enter your choice: ");
                 int customerChoice = int.Parse(Console.ReadLine());
                 //Awitch for Customer Management Portal
                 switch (customerChoice)
                 {
                     case 1:
+                        Console.WriteLine();
                         ICarLeaseRepositoryImpl customer = new CarLeaseRepositoryImpl();
                         List<Customer> l = customer.listCustomers();
                         Console.WriteLine();
@@ -48,66 +51,68 @@ while(inLoop)
                         {
                             Console.WriteLine(v);
                         }
-                        Console.WriteLine("\nTo go back to Customer Management Portal, press 1. To go back to main menu, press 2");
+                        Console.Write("\nTo go back to Customer Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice= int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
                         break;
                     case 2:
                         Console.WriteLine("\nTo add a user to the system, please enter following details:");
-                        Console.WriteLine("User ID: ");
-                        int userID= int.Parse(Console.ReadLine());
-                        Console.WriteLine("First Name: ");
+                        Console.Write("First Name: ");
                         string firstName= Console.ReadLine();
-                        Console.WriteLine("Last Name: ");
+                        Console.Write("Last Name: ");
                         string lastName= Console.ReadLine();
-                        Console.WriteLine("Email: ");
+                        Console.Write("Email: ");
                         string email= Console.ReadLine();
-                        Console.WriteLine("Phone Number: ");
+                        Console.Write("Phone Number: ");
                         string phone= Console.ReadLine();
-                        Customer c = new Customer() { customerID = userID, firstName = firstName, lastName = lastName, email = email, phone = phone };
+                        Customer c = new Customer() { firstName = firstName, lastName = lastName, email = email, phone = phone };
                         ICarLeaseRepositoryImpl addCustomer = new CarLeaseRepositoryImpl();
                         int stat = addCustomer.addCustomer(c);
                         if (stat > 0)
                         {
-                            Console.WriteLine("Customer added successfully");
+                            Console.WriteLine("\nCustomer added successfully");
                         }
                         else
-                            Console.WriteLine("Some error occured");
-                        Console.WriteLine("\nTo go back to Customer Management Portal, press 1. To go back to main menu, press 2");
+                            Console.WriteLine("\nSome error occured");
+                        Console.Write("\nTo go back to Customer Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice = int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
                         break;
                     case 3:
-                        Console.WriteLine("Please enter the ID of the Customer: ");
+                        Console.Write("\nPlease enter the ID of the Customer: ");
                         int custID= int.Parse(Console.ReadLine());
                         ICarLeaseRepositoryImpl findCustomer = new CarLeaseRepositoryImpl();
                         Customer c1 = new Customer();
-                        c1 = findCustomer.findCustomerById(custID);
-                        if(c1.customerID!=0)
-                            Console.WriteLine($"Customer Name: {c1.FirstName} {c1.LastName}\t Email: {c1.email}\t Phone Number: {c1.phone}");
-                        else
-                            Console.WriteLine("Customer Not Found");
-                        Console.WriteLine("\nTo go back to Customer Management Portal, press 1. To go back to main menu, press 2");
+                        try
+                        {
+                            c1 = findCustomer.findCustomerById(custID);
+                            Console.WriteLine(c1);
+                        }
+                        catch (CustomerNotFoundException e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
+                        Console.Write("\nTo go back to Customer Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice = int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
                         break;
                     case 4:
-                        Console.WriteLine("\nPlease enter the ID of the customer you wish to remove from the system: ");
+                        Console.Write("\nPlease enter the ID of the customer you wish to remove from the system: ");
                         int cid= int.Parse(Console.ReadLine());
                         ICarLeaseRepositoryImpl removeCustomer=new CarLeaseRepositoryImpl();
                         int removeStatus=removeCustomer.removeCustomer(cid);
                         if (removeStatus > 0)
                         {
-                            Console.WriteLine("Customer removed successfully");
+                            Console.WriteLine("\nCustomer removed successfully");
                         }
                         else
                         {
-                            Console.WriteLine("It seems like the customer you're trying to remove does not exist in the database");
+                            Console.WriteLine("\nIt seems like the customer you're trying to remove does not exist in the database");
                         }
-                        Console.WriteLine("\nTo go back to Customer Management Portal, press 1. To go back to main menu, press 2");
+                        Console.Write("\nTo go back to Customer Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice = int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
@@ -116,7 +121,7 @@ while(inLoop)
                         subLoop = false;
                         break;
                     default:
-                        Console.WriteLine("Please enter a valid choice");
+                        Console.WriteLine("\nPlease enter a valid choice");
                         break;
                 }
             }
@@ -134,13 +139,14 @@ while(inLoop)
                 Console.WriteLine("4. Remove a car");
                 Console.WriteLine("5. Find a car by ID");
                 Console.WriteLine("6. Go to Main Menu\n");
-                Console.WriteLine("Enter your choice: ");
+                Console.Write("Enter your choice: ");
                 int carChoice = int.Parse(Console.ReadLine());
 
                 //Switch for Car Management Portal Submenu
                 switch(carChoice)
                 {
                     case 1:
+                        Console.WriteLine();
                         ICarLeaseRepositoryImpl carList = new CarLeaseRepositoryImpl();
                         List<Car> cars = new List<Car>();
                         cars= carList.listAvailableCars();
@@ -148,76 +154,79 @@ while(inLoop)
                         {
                             Console.WriteLine(v);
                         }
-                        Console.WriteLine("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2");
+                        Console.Write("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice = int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
                         break;
                     case 2:
+                        Console.WriteLine();
                         ICarLeaseRepositoryImpl carList2=new CarLeaseRepositoryImpl();
                         List<Car> c1=carList2.listRentedCars();
                         foreach(var v in  c1)
                         {
                             Console.WriteLine(v);
                         }
-                        Console.WriteLine("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2");
+                        Console.Write("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice = int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
                         break;
                     case 3:
-                        Console.WriteLine("To add a car to the portal, give following details: ");
-                        Console.WriteLine("ID: ");
-                        int id=int.Parse(Console.ReadLine());
-                        Console.WriteLine("Make: ");
+                        Console.WriteLine("\nTo add a car to the portal, give following details: ");
+                        Console.Write("Make: ");
                         string make = Console.ReadLine();
-                        Console.WriteLine("Model: ");
+                        Console.Write("Model: ");
                         string model = Console.ReadLine();
-                        Console.WriteLine("Year: ");
+                        Console.Write("Year: ");
                         int year=int.Parse(Console.ReadLine());
-                        Console.WriteLine("DailyRate: ");
+                        Console.Write("DailyRate: ");
                         double dr=double.Parse(Console.ReadLine());
-                        Console.WriteLine("Passenger Capacity: ");
+                        Console.Write("Passenger Capacity: ");
                         int pc=int.Parse(Console.ReadLine());
 
                         ICarLeaseRepositoryImpl addCar=new CarLeaseRepositoryImpl();
-                        Car c2 = new Car() { vehicleID = id, make = make, model = model, year=year, dailyRate=dr, passengerCapacity=pc };
+                        Car c2 = new Car() { make = make, model = model, year=year, dailyRate=dr, passengerCapacity=pc };
                         int addStatus = addCar.addCar(c2);
                         if(addStatus > 0)
-                            Console.WriteLine("Car added successfully");
+                            Console.WriteLine("\nCar added successfully");
                         else
-                            Console.WriteLine("Car already exists");
-                        Console.WriteLine("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2");
+                            Console.WriteLine("\nCar already exists");
+                        Console.Write("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice = int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
                         break;
                     case 4:
-                        Console.WriteLine("Enter the ID of the car which you wish to remove from the Portal: ");
+                        Console.Write("\nEnter the ID of the car which you wish to remove from the Portal: ");
                         int removeID = int.Parse(Console.ReadLine());
                         ICarLeaseRepositoryImpl removeCar=new CarLeaseRepositoryImpl();
                         int removeStatus = removeCar.removeCar(removeID);
                         if(removeStatus>0)
-                            Console.WriteLine("Car removed Successfully");
+                            Console.WriteLine("\nCar removed Successfully");
                         else
-                            Console.WriteLine("It seems like the customer you're trying to remove does not exist in the database");
-                        Console.WriteLine("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2");
+                            Console.WriteLine("\nIt seems like the customer you're trying to remove does not exist in the database");
+                        Console.Write("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice = int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
                         break;
                     case 5:
-                        Console.WriteLine("To get the information of a car, please enter the ID: ");
+                        Console.Write("\nTo get the information of a car, please enter the ID: ");
+                        Console.WriteLine();
                         int findID=int.Parse(Console.ReadLine());
                         ICarLeaseRepositoryImpl findCar=new CarLeaseRepositoryImpl();
                         Car c3 = new Car();
-                        c3 = findCar.findCarById(findID);
-                        
-                        if(c3.vehicleID!=0)
-                            Console.WriteLine($"Car ID: {c3.vehicleID}\t Make: {c3.make}\t Model: {c3.model}\t Year: {c3.year}");
-                        else
-                            Console.WriteLine("Car not found");
-                        Console.WriteLine("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2");
+                        try
+                        {
+                            c3 = findCar.findCarById(findID);
+                            Console.WriteLine(c3);
+                        }
+                        catch(CarNotFoundException e)
+                        {
+                            Console.WriteLine(e.Message);
+                        }
+                        Console.Write("\nTo go back to Car Management Portal, press 1. To go back to main menu, press 2: ");
                         subLoopChoice = int.Parse(Console.ReadLine());
                         if (subLoopChoice == 2)
                             subLoop = false;
@@ -226,11 +235,12 @@ while(inLoop)
                         subLoop = false;
                         break;
                     default:
-                        Console.WriteLine("Please enter a valid choice");
+                        Console.WriteLine("\nPlease enter a valid choice");
                         break;
                 }
             }
             break;
+        //Lease Management Portal
         case 3:
             while(subLoop)
             {
@@ -240,8 +250,9 @@ while(inLoop)
                 Console.WriteLine("2. Get details of a specific lease");
                 Console.WriteLine("3. View all the active leases");
                 Console.WriteLine("4. View lease history");
-                Console.WriteLine("5. Go to Main Menu\n");
-                Console.WriteLine("Enter your choice: ");
+                Console.WriteLine("5. Return a car to the lessor");
+                Console.WriteLine("6. Go to Main Menu\n");
+                Console.Write("Enter your choice: ");
                 int leaseChoice = int.Parse(Console.ReadLine());
 
                 switch(leaseChoice)
@@ -258,15 +269,16 @@ while(inLoop)
                         Console.WriteLine("\nIf you lease a car for anywhere between 1 to 29 days, you will be charged with standard daily rates for the lease.");
                         Console.WriteLine("If you lease a car for an entire month, a discount of 20% will be applied to your total lease amount.");
                         Console.WriteLine("If you lease car for more than a month, rate will be calculated based on charges for a month plus additional days.");
-                        Console.WriteLine("\nPlease enter the ID of the car you would like to lease:");
+                        Console.Write("\nPlease enter the ID of the car you would like to lease:");
                         int leaseCarId=int.Parse(Console.ReadLine());
-                        Console.WriteLine("Please enter your customer ID: ");
+                        Console.Write("Please enter your customer ID: ");
                         int customerid=int.Parse(Console.ReadLine());
-                        Console.WriteLine("Please enter the start date of the lease(YYYY-MM-DD):");
+                        Console.Write("Please enter the start date of the lease(YYYY-MM-DD):");
                         DateTime sDate=DateTime.Parse(Console.ReadLine());
-                        Console.WriteLine("Please enter the end date for the lease(YYYY-MM-DD):");
+                        Console.Write("Please enter the end date for the lease(YYYY-MM-DD):");
                         DateTime eDate=DateTime.Parse(Console.ReadLine());
                         Car c3 = new Car();
+                        Lease lease = new Lease();
                         c3 = carLease.findCarById(leaseCarId);
                         if(c3.isAvailable=="available")
                         {
@@ -294,52 +306,100 @@ while(inLoop)
                                 finalAmount = (totalAmount + (totalAmount * 0.2))+(addDays*c3.dailyRate);
                                 Console.WriteLine($"Your total lease amount is: {finalAmount}");
                             }
-                            Console.WriteLine("\nDo you wish to confirm the lease?(Press 1 if yes, 0 if no:)");
+                            Console.WriteLine("\nDo you wish to confirm the lease by making payment?(Press 1 if yes, 0 if no:)");
                             int leaseMakeChoice=int.Parse(Console.ReadLine());
                             if(leaseMakeChoice==1)
                             {
-                                int leaseStatus=carLease.createLease(customerid, leaseCarId, sDate, eDate);
-                                if(leaseStatus>0)
-                                {
-                                    Console.WriteLine("\nSuccessfully created the lease agreement.");
-                                    Console.WriteLine("Generating the payment");
-                                    Thread.Sleep(3000);
-                                    Console.WriteLine("Payment successful!");
-                                    Console.WriteLine("\nHere are the details of your lease:");
-                                    Console.WriteLine($"Lease ID:{leaseStatus}\t Car make: {c3.make}\t Model: {c3.model}, Start Date: {sDate}\t End Date: {eDate}");
-                                    Console.WriteLine("Thank you for choosing our Leasing Services. We wish you a safe and memorable experience!");
-                                }
-                                else
-                                    Console.WriteLine("It seems there was some problem with creating your lease. Please try again.");
+                                int leaseStatId=carLease.createLease(customerid, leaseCarId, sDate, eDate);
+                                Console.WriteLine("\nSuccessfully created the lease agreement.");
+                                Console.WriteLine("\nGenerating the payment");
+                                carLease.recordPayment(sDate, finalAmount);
+                                Thread.Sleep(3000);
+                                Console.WriteLine("Payment successful!");
+                                Console.WriteLine("\nHere are the details of your lease:\n");
+                                Console.WriteLine($"Car make: {c3.make}\t Model: {c3.model}, Start Date: {sDate}\t End Date: {eDate}\t Total amount: {finalAmount}");
+                                Console.WriteLine("\nThank you for choosing our Leasing Services. We wish you a safe and memorable experience!\n");                               
                             }
                         }
                         else
                         {
-                            Console.WriteLine("Sorry, it seems the car you have selected is not available at the moment. Please enter correct car ID.");
+                            Console.WriteLine("\nSorry, it seems the car you have selected is not available at the moment. Please enter correct car ID.");
                         }
+                        Console.Write("\nTo go back to Lease Management Portal, press 1. To go back to main menu, press 2: ");
+                        subLoopChoice = int.Parse(Console.ReadLine());
+                        if (subLoopChoice == 2)
+                            subLoop = false;
+                        break;
+                    case 2:
+                        Console.Write("\nPlease enter the ID of the lease you wish to fetch details:");
+                        int lid = int.Parse(Console.ReadLine());
+                        ICarLeaseRepositoryImpl findLease = new CarLeaseRepositoryImpl();
+                        try
+                        {
+                            ArrayList leasedata=findLease.displayLeaseInfo(lid);
+                            Console.WriteLine($"\nHere are all the details of lease agreement with leaseID: {lid}:");
+                            Console.WriteLine($"\nName of the customer: {leasedata[0]} {leasedata[1]}\t Make and Model of car: {leasedata[2]} {leasedata[3]}\n Start Date: {leasedata[4]}\t End Date: {leasedata[5]}\n");
+                        }
+                        catch (LeaseNotFoundException e)
+                        {
+                            Console.WriteLine();
+                            Console.WriteLine(e.Message);
+                        }
+                        Console.Write("\nTo go back to Lease Management Portal, press 1. To go back to main menu, press 2: ");
+                        subLoopChoice = int.Parse(Console.ReadLine());
+                        if (subLoopChoice == 2)
+                            subLoop = false;
+                        break;
+                    case 3:
+                        Console.WriteLine();
+                        ICarLeaseRepositoryImpl activeLease = new CarLeaseRepositoryImpl();
+                        List<Lease> activeLeases=activeLease.listActiveLeases();
+                        foreach(var v in activeLeases)
+                        {
+                            Console.WriteLine(v);
+                        }
+                        Console.Write("\nTo go back to Lease Management Portal, press 1. To go back to main menu, press 2: ");
+                        subLoopChoice = int.Parse(Console.ReadLine());
+                        if (subLoopChoice == 2)
+                            subLoop = false;
+                        break;
+                    case 4:
+                        Console.WriteLine();
+                        ICarLeaseRepositoryImpl leaseHistoryObj = new CarLeaseRepositoryImpl();
+                        List<Lease> leaseHistory=leaseHistoryObj.listLeaseHistory();
+                        foreach(var v in leaseHistory)
+                        {
+                            Console.WriteLine(v);
+                        }
+                        Console.Write("\nTo go back to Lease Management Portal, press 1. To go back to main menu, press 2: ");
+                        subLoopChoice = int.Parse(Console.ReadLine());
+                        if (subLoopChoice == 2)
+                            subLoop = false;
                         break;
                     case 5:
+                        Console.Write("Enter the ID of the car which you'd like to return to the lessor: ");
+                        int returnID=int.Parse(Console.ReadLine());
+                        ICarLeaseRepositoryImpl returnCar = new CarLeaseRepositoryImpl();
+                        int returnStatus = returnCar.returnCar(returnID);
+                        if(returnStatus>0)
+                            Console.WriteLine("Car returned successfully!");
+                        else
+                            Console.WriteLine("Something went wrong");
+                        break;
+                    case 6:
                         subLoop = false;
                         break;
                 }
             }
-
-            //Console.WriteLine("Do you wish to exit?(1 or 0)");
-            //exitChoice = int.Parse(Console.ReadLine());
-            //if (exitChoice == 1)
-            //{
-            //    inLoop = false;
-            //    Console.WriteLine("Thank you! Visit Again");
-            //}
             break;
         case 4:
-            Console.WriteLine("This is Payment Management Portal");
-            Console.WriteLine("Do you wish to exit?(1 or 0)");
-            exitChoice = int.Parse(Console.ReadLine());
-            if (exitChoice == 1)
+            Console.WriteLine("\nWelcome to Payment Management Portal");
+            Console.WriteLine("Here are the details of all the Payments:\n");
+            ICarLeaseRepositoryImpl listPayment= new CarLeaseRepositoryImpl();
+            List<Payment> paymentsList = listPayment.listPayments();
+            foreach (var v in paymentsList)
             {
-                inLoop = false;
-                Console.WriteLine("Thank you! Visit Again");
+                Console.WriteLine(v);
             }
             break;
         case 5:
@@ -347,7 +407,7 @@ while(inLoop)
             inLoop=false;
             break;
         default:
-            Console.WriteLine("Please enter a valid choice");
+            Console.WriteLine("\nPlease enter a valid choice");
             break;
     }
 }

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace CarRentalSystem.Entities
 {
-    internal class Lease
+    public class Lease
     {
         public int leaseID;
         public int vehicleID;
@@ -49,5 +49,10 @@ namespace CarRentalSystem.Entities
         //{
         //    throw new NotImplementedException();
         //}
+
+        public override string ToString()
+        {
+            return $"LeaseID: {leaseID}\t VehicleID: {vehicleID}, CustomerID: {customerID}\t Start Date: {startDate}, End Date: {enddate}";
+        }
     }
 }

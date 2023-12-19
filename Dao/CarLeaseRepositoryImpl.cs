@@ -1,6 +1,8 @@
 ﻿using CarRentalSystem.Entities;
+using CarRentalSystem.Exceptions;
 using CarRentalSystem.Util;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.SqlClient;
 using System.Linq;
@@ -10,34 +12,27 @@ using System.Threading.Tasks;
 
 namespace CarRentalSystem.Dao
 {
-    internal class CarLeaseRepositoryImpl:ICarLeaseRepositoryImpl
+    public class CarLeaseRepositoryImpl:ICarLeaseRepositoryImpl
     {
         //Creating Lists
-        List<Customer> customers;
-        List<Car> cars;
-        List<MotorCycle> motorcycle;
-        List<Lease> leases;
-        List<Payment> payment;
+        public List<Customer> customers;
+        public List<Car> cars;
+        //public List<MotorCycle> motorcycle;
+        public List<Lease> leases;
+        public List<Payment> payment;
 
 
         //Adding database connectivity
         public string connectionString;
         SqlCommand cmd = null;
 
+        public string ConnectionString
+        {
+            get { return  connectionString; } 
+            set {  connectionString = value; }
+        }
         public CarLeaseRepositoryImpl()
         {
-            //customers = new List<Customer>()
-            //{
-            //    new Customer() {customerID=1, firstName="Aditya", lastName="Pandit", email="aditya@gmail.com", phone="8854120236"},
-            //    new Customer() {customerID=2, firstName="Suvidha", lastName="Ghosh", email="gsuvidha@gmail.com", phone="7789002103"},
-            //};
-
-            //cars = new List<Car>()
-            //{
-            //    new Car() {VehicleID=1, Make="Maruti", Model="Dzire", Year=2020, DailyRate=3000, IsAvailable=true, passengerCapacity=5},
-            //    new Car() {VehicleID=2, Make="Mahindra", Model="Thar", Year=2021, DailyRate=5000, IsAvailable=false, passengerCapacity=4},
-            //};
-
             connectionString = DbConnUtil.getConnectionString();
             cmd = new SqlCommand();
         }
@@ -83,8 +78,7 @@ namespace CarRentalSystem.Dao
             
                 using(SqlConnection conn=new SqlConnection(connectionString))
                 {
-                    cmd.CommandText = "insert into Customers values(@id, @firstname, @lastname, @email, @phone)";
-                    cmd.Parameters.AddWithValue("@id", customer.customerID);
+                    cmd.CommandText = "insert into Customers(firstname, lastname, email, phone) values(@firstname, @lastname, @email, @phone)";
                     cmd.Parameters.AddWithValue("@firstname", customer.firstName);
                     cmd.Parameters.AddWithValue("@lastname", customer.lastName);
                     cmd.Parameters.AddWithValue("@email", customer.email);
@@ -93,7 +87,7 @@ namespace CarRentalSystem.Dao
                     conn.Open();
                     int status = cmd.ExecuteNonQuery();
                     return status;
-            }
+                }
             
 
         }
@@ -101,30 +95,29 @@ namespace CarRentalSystem.Dao
         public Customer findCustomerById(int customerID)
         {
             Customer customer = new Customer();
-            try
+            using (SqlConnection conn = new SqlConnection(connectionString))
             {
-                using(SqlConnection conn=new SqlConnection(connectionString))
-                {
-                    cmd.CommandText = "select * from Customers where customerID=@customerid";
-                    cmd.Parameters.AddWithValue("@customerid", customerID);
-                    cmd.Connection = conn;
-                    conn.Open();
+                cmd.CommandText = "select * from Customers where customerID=@customerid";
+                cmd.Parameters.AddWithValue("@customerid", customerID);
+                cmd.Connection = conn;
+                conn.Open();
 
-                    SqlDataReader reader = cmd.ExecuteReader();
-                    while(reader.Read())
-                    {
-                        customer.customerID = (int)reader["customerID"];
-                        customer.firstName = (string)reader["firstname"];
-                        customer.lastName = (string)reader["lastname"];
-                        customer.email = (string)reader["email"];
-                        customer.phone = (string)reader["phone"];
-                    }
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    customer.customerID = (int)reader["customerID"];
+                    customer.firstName = (string)reader["firstname"];
+                    customer.lastName = (string)reader["lastname"];
+                    customer.email = (string)reader["email"];
+                    customer.phone = (string)reader["phone"];
                 }
+
+                if (customer.customerID == customerID)
+                    return customer;
+                else
+                    throw new CustomerNotFoundException($"Customer with ID {customerID} does not exist in the database");
             }
-            catch(Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-            }
+
 
             return customer;
         }
@@ -202,6 +195,7 @@ namespace CarRentalSystem.Dao
                         c.make = (string)reader["make"];
                         c.model = (string)reader["model"];
                         c.year = (int)reader["myear"];
+                        c.dailyRate = Convert.ToDouble(reader["dailyrate"]);
                         cars.Add(c);
                     }
                 }
@@ -218,8 +212,7 @@ namespace CarRentalSystem.Dao
         {
             using(SqlConnection conn=new SqlConnection(connectionString))
             {
-                cmd.CommandText = "insert into Vehicles values(@id, @make, @model, @year, @dailyRate, 'available', @pcap, null)";
-                cmd.Parameters.AddWithValue("@id", car.vehicleID);
+                cmd.CommandText = "insert into Vehicles(make, model, myear, dailyrate, vstatus, passengercapacity) values(@make, @model, @year, @dailyRate, 'available', @pcap)";
                 cmd.Parameters.AddWithValue("@make", car.make);
                 cmd.Parameters.AddWithValue ("@model", car.model);
                 cmd.Parameters.AddWithValue("@year", car.year);
@@ -274,14 +267,17 @@ namespace CarRentalSystem.Dao
                     c.isAvailable = (string)reader["vstatus"];
                     c.dailyRate= Convert.ToDouble(reader["dailyrate"]);
                 }
-                return c;
+                if (c.vehicleID == carID)
+                    return c;
+                else
+                    throw new CarNotFoundException($"Vehicle with ID {carID} does not exist in our system.");
             }
         }
 
         //Implementing methods for Lease management
         public int createLease(int customerID, int carID, DateTime startDate, DateTime endDate)
         {
-            Lease addLease = new Lease();
+            //Lease addLease = new Lease();
             using(SqlConnection conn=new SqlConnection(connectionString)) 
             {
                 string dl = "DailyLease";
@@ -302,35 +298,161 @@ namespace CarRentalSystem.Dao
                 cmd.CommandText = "update Vehicles set vstatus='notAvailable' where vehicleID=@veid";
                 cmd.Parameters.AddWithValue("@veid", carID);
                 int vupdate = cmd.ExecuteNonQuery();
-                cmd.CommandText=("select SCOPE_IDENTITY()");
-                int leaseID = Convert.ToInt32(cmd.ExecuteScalar());
-                return leaseID;
+                //cmd.CommandText = ("select SCOPE_IDENTITY() as sc");
+                //SqlDataReader read=cmd.ExecuteReader();
+                //int leaseid=0;
+                //while(read.Read())
+                //{
+                //    leaseid = (int)read["sc"];
+                //}
+                //int leaseid = Convert.ToInt32(cmd.ExecuteScalar());
+                //addLease.leaseID= leaseID;
+                //addLease.vehicleID = carID;
+                //addLease.customerID = customerID;
+                //addLease.startDate = startDate;
+                //addLease.enddate = endDate;
+                return addLeaseStatus;
             }          
         }
 
-        public void returnCar(int leaseID)
+        public ArrayList displayLeaseInfo (int leaseID)
         {
-            throw new NotImplementedException();
+            ArrayList leased = new ArrayList();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                //select * from Leases where leaseID=@lid
+                cmd.CommandText = "select c.firstname, c.lastname, v.make, v.model, l.startdate, l.enddate from Customers c join Leases l on c.customerID=l.customerID join Vehicles v on l.vehicleID=v.vehicleID where l.leaseID=@lid";
+                cmd.Parameters.AddWithValue("@lid", leaseID);
+                cmd.Connection = conn;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    leased.Add((string)reader["firstname"]);
+                    leased.Add((string)reader["lastname"]);
+                    leased.Add((string)reader["make"]);
+                    leased.Add((string)reader["model"]);
+                    leased.Add((DateTime)reader["startdate"]);
+                    leased.Add((DateTime)reader["enddate"]);
+                }
+
+                if (leased.Count != 0)
+                    return leased;
+                else
+                    throw new LeaseNotFoundException($"Lease with ID {leaseID} does not exist");
+            }
         }
 
         public List<Lease> listActiveLeases()
         {
-            throw new NotImplementedException();
+            List<Lease> activeLeases=new List<Lease>();
+            using( SqlConnection conn=new SqlConnection(connectionString ))
+            {
+                cmd.CommandText = "select * from Leases where GETDATE()<=enddate";               
+                cmd.Connection= conn;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Lease lease = new Lease();
+                    lease.leaseID = (int)reader["leaseID"];
+                    lease.vehicleID = (int)reader["vehicleID"];
+                    lease.customerID = (int)reader["customerID"];
+                    lease.startDate= (DateTime)reader["startdate"];
+                    lease.enddate = (DateTime)reader["enddate"];
+                    activeLeases.Add(lease);
+                }
+            }
+            return activeLeases;
         }
 
         public List<Lease> listLeaseHistory()
         {
-            throw new NotImplementedException();
+            List<Lease> leaseHistory = new List<Lease>();
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                cmd.CommandText = "select * from Leases where GETDATE()>=enddate";
+                cmd.Connection = conn;
+                conn.Open();
+                SqlDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    Lease lease = new Lease();
+                    lease.leaseID = (int)reader["leaseID"];
+                    lease.vehicleID = (int)reader["vehicleID"];
+                    lease.customerID = (int)reader["customerID"];
+                    lease.startDate = (DateTime)reader["startdate"];
+                    lease.enddate = (DateTime)reader["enddate"];
+                    leaseHistory.Add(lease);
+                }
+            }
+            return leaseHistory;
         }
 
-        public List<Payment> listPayments(Lease lease)
+        public int returnCar(int carID)
         {
-            throw new NotImplementedException();
+            using(SqlConnection conn = new SqlConnection(connectionString))
+            {
+                cmd.CommandText = "update Vehicles set vstatus='available' where vehicleID=@cid";
+                cmd.Parameters.AddWithValue("@cid", carID);
+
+                cmd.Connection= conn;
+                conn.Open();
+
+                int returnStat = cmd.ExecuteNonQuery();
+
+                return returnStat;
+            }
         }
 
-        public void recordPayment(Lease lease, double amount)
+        //Implementing methods for Payment Management
+        public void recordPayment(DateTime paymentDate, double amount)
         {
-            throw new NotImplementedException();
+            using(SqlConnection conn = new SqlConnection(connectionString))
+            {
+                int leaseid=0;
+                cmd.CommandText = "select top 1 * from Leases order by leaseID desc";
+                cmd.Connection = conn;
+                conn.Open();
+                SqlDataReader r = cmd.ExecuteReader();
+                Lease l = new Lease();
+                while (r.Read())
+                {              
+                    l.leaseID = (int)r["leaseID"];
+                }
+
+                r.Close();
+                
+                cmd.CommandText = "insert into Payments(leaseID, paymentdate, amount) values(@lid, @pdate, @amt)";
+                cmd.Parameters.AddWithValue("@lid", l.leaseID);
+                cmd.Parameters.AddWithValue("@pdate", paymentDate);
+                cmd.Parameters.AddWithValue("@amt", amount);
+
+                int addPaymentStatus=cmd.ExecuteNonQuery();
+            }
+        }
+
+        public List<Payment> listPayments()
+        {
+            List<Payment> paymentsList=new List<Payment>();
+            using(SqlConnection conn = new SqlConnection(connectionString))
+            {
+                cmd.CommandText = "select * from Payments";
+                cmd.Connection = conn;
+                conn.Open();
+                SqlDataReader r = cmd.ExecuteReader();
+                while(r.Read())
+                {
+                    Payment p = new Payment();
+                    p.paymentID = (int)r["paymentID"];
+                    p.leaseID = (int)r["leaseID"];
+                    p.paymentDate = (DateTime)r["paymentdate"];
+                    p.amount = Convert.ToDouble(r["amount"]);
+                    paymentsList.Add(p);
+                }
+            }
+
+            return paymentsList;
         }
     }
 }

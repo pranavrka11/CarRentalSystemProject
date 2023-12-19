@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CarRentalSystem.Entities
 {
-    internal class Car : Vehicle
+    public class Car : Vehicle
     {
         public int passengerCapacity;
 

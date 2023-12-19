@@ -32,3 +32,4 @@ D:\Foundation\New folder\.NETProjects\CarRentalSystem\obj\Debug\net6.0\CarRental
 D:\Foundation\New folder\.NETProjects\CarRentalSystem\obj\Debug\net6.0\CarRentalSystem.genruntimeconfig.cache
 D:\Foundation\New folder\.NETProjects\CarRentalSystem\obj\Debug\net6.0\ref\CarRentalSystem.dll
 D:\Foundation\New folder\.NETProjects\CarRentalSystem\bin\Debug\net6.0\appsettings.json
+D:\Foundation\New folder\.NETProjects\CarRentalSystem\obj\Debug\net6.0\CarRentalSystem.sourcelink.json

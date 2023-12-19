@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CarRentalSystem.Entities
 {
-    internal class Vehicle
+    public class Vehicle
     {
         public int vehicleID;
         public string make;
